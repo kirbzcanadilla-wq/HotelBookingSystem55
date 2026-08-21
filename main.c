@@ -18,7 +18,7 @@ int main() {
     while(1) {
         system("cls");
         printf("+--------------------------------------+\n");
-        printf("¦     HOTEL BOOKING SYSTEM 2026        ¦\n");
+        printf("¦      HOTEL BOOKING SYSTEM 2026       ¦\n");
         printf("+--------------------------------------+\n\n");
         printf("1. Login\n");
         printf("2. Register New Account\n");
@@ -41,7 +41,7 @@ int main() {
                 int authResult = authenticate(USER_FILE, u.email, u.password, &loggedInUser);
                 
                 if (authResult == 1) {
-                    printf("\n? Login successful! Welcome %s\n", loggedInUser.name);
+                    printf("\n> Login successful! Welcome %s\n", loggedInUser.name);
                     system("pause");
             
                     if (strcmp(loggedInUser.type, "Admin") == 0) {
@@ -50,10 +50,11 @@ int main() {
                         user_menu(loggedInUser);
                     }
                 } else if (authResult == 2) {
-                    printf("\n? Your account is pending approval. Please wait for admin confirmation.\n");
+                    printf("\n! Your account is PENDING approval.\n");
+                    printf("! Please wait for manual activation in the database.\n");
                     system("pause");
                 } else {
-                    printf("\n? Invalid credentials!\n");
+                    printf("\n! Invalid credentials or account does not exist.\n");
                     system("pause");
                 }
                 break;
@@ -62,23 +63,24 @@ int main() {
             case 2: {
                 printf("\n--- REGISTER NEW ACCOUNT ---\n");
                 
-                // Check if registering as Admin
                 printf("Are you registering as Admin? (y/n): ");
                 char isAdmin;
                 scanf(" %c", &isAdmin);
                 
+                int validAdminAttempt = 0;
                 if (isAdmin == 'y' || isAdmin == 'Y') {
                     printf("Enter Admin Registration Code: ");
                     scanf("%d", &code);
                     
                     if(code != ADMIN_CODE) {
-                        printf("\n? INVALID CODE! Registration aborted.\n");
+                        printf("\n! INVALID CODE! Registration aborted.\n");
                         system("pause");
                         break;
                     }
+                    validAdminAttempt = 1;
                 }
                 
-                while(getchar() != '\n');
+                while(getchar() != '\n'); // Clear buffer
 
                 printf("Enter Full Name: ");
                 fgets(u.name, sizeof(u.name), stdin);
@@ -93,19 +95,21 @@ int main() {
                 printf("Enter Phone Number: ");
                 scanf("%s", u.phone);
                 
-                while(getchar() != '\n');
+                while(getchar() != '\n'); // Clear buffer
                 printf("Enter Address: ");
                 fgets(u.address, sizeof(u.address), stdin);
                 u.address[strcspn(u.address, "\n")] = 0;
                 
-                if (isAdmin == 'y' || isAdmin == 'Y') {
+                // ALL NEW ACCOUNTS (Admin or User) are now set to "Pending"
+                strcpy(u.status, "Pending");
+
+                if (validAdminAttempt) {
                     strcpy(u.type, "Admin");
-                    strcpy(u.status, "Active"); // Admin accounts are active immediately
-                    printf("\n? Admin account created successfully! You can login now.\n");
+                    printf("\n> Admin registration recorded as PENDING.\n");
+                    printf("> HOTEL BOOKING MANANGEMENT SYSTEM!");
                 } else {
                     strcpy(u.type, "User");
-                    strcpy(u.status, "Pending"); // User accounts need approval
-                    printf("\n? Account created! Please wait for admin approval before logging in.\n");
+                    printf("\n> User account created! Status: PENDING.\n");
                 }
                 
                 addUser(USER_FILE, u);
